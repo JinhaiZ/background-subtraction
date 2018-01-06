@@ -30,11 +30,32 @@ def f(pixel):
         return 0
     else:
         return 1
-def binarize(image):
+def binarization(image):
     return  np.vectorize(f)(image)
+# binarization
+img = binarization(img)
+# component labeling
+# convert binary image to bw image
+img = np.uint8(img*255)
+# filp black and white becasue cv2.connectedComponents only works for white components
+img = cv2.bitwise_not(img)
 
-img = binarize(img)
+ret, labels = cv2.connectedComponents(img)
 
-plt.imshow(img)
+# Map component labels to hue val
+label_hue = np.uint8(179*labels/np.max(labels))
+blank_ch = 255*np.ones_like(label_hue)
+labeled_img = cv2.merge([label_hue, blank_ch, blank_ch])
+
+# cvt to BGR for display
+labeled_img = cv2.cvtColor(labeled_img, cv2.COLOR_HSV2BGR)
+
+# set bg label to black
+labeled_img[label_hue==0] = 0
+
+plt.imshow(labeled_img)
 plt.show()
+
+# orphological operations including dilation and erosion
+
 
