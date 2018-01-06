@@ -35,27 +35,53 @@ def binarization(image):
 # binarization
 img = binarization(img)
 # component labeling
-# convert binary image to bw image
+# convert binary image to bw image and cast int to uint8
 img = np.uint8(img*255)
 # filp black and white becasue cv2.connectedComponents only works for white components
 img = cv2.bitwise_not(img)
 
-ret, labels = cv2.connectedComponents(img)
+# Connected Components Labeling
 
-# Map component labels to hue val
-label_hue = np.uint8(179*labels/np.max(labels))
-blank_ch = 255*np.ones_like(label_hue)
-labeled_img = cv2.merge([label_hue, blank_ch, blank_ch])
 
-# cvt to BGR for display
-labeled_img = cv2.cvtColor(labeled_img, cv2.COLOR_HSV2BGR)
+#find all your connected components (white blobs in your image)
+nb_components, output, stats, centroids = cv2.connectedComponentsWithStats(img, connectivity=8)
+#connectedComponentswithStats yields every seperated component with information on each of them, such as size
+#the following part is just taking out the background which is also considered a component, but most of the time we don't want that.
+sizes = stats[0:, -1]
 
-# set bg label to black
-labeled_img[label_hue==0] = 0
+# minimum size of particles we want to keep (number of pixels)
+#here, it's a fixed value, but you can set it as you want, eg the mean of the sizes or whatever
+min_size = output.shape[0]*output.shape[1] * 0.0008
+max_size = output.shape[0]*output.shape[1] * 0.25
 
-plt.imshow(labeled_img)
+kernel = np.ones((2,2),np.uint8)
+# your answer image
+combined_img = np.zeros((output.shape))
+#for every component in the image
+# you keep it only if it's above min_size
+for i in range(1, nb_components):
+    component = np.zeros((output.shape))
+    component[output == i] = 1
+    # orphological operations including dilation and erosion
+    # Erosion, remove noise
+    component = cv2.erode(component,kernel,iterations = 1)
+    # dilation, recover size
+    component = cv2.dilate(component,kernel,iterations = 1)
+    # size filtering
+    # if sizes[i] >= min_size or sizes[i]<= max_size:
+    #     component[output == 1] = 0
+    # add to combined_img
+    combined_img += component
+
+combined_img[combined_img > 1] = 1
+combined_img = np.uint8(combined_img)
+#create two subplots
+ax1 = plt.subplot(1,2,1)
+ax2 = plt.subplot(1,2,2)
+
+im1 = ax1.imshow(output)
+im2 = ax2.imshow(combined_img)
+
+
+
 plt.show()
-
-# orphological operations including dilation and erosion
-
-
