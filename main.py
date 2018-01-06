@@ -24,8 +24,7 @@ def binarization(image):
 def conComWithMorpOps(img):
     # Connected Components Labeling with morphological operations
 
-    # filp black and white becasue cv2.connectedComponents only works for white components
-    img = cv2.bitwise_not(img)
+    
     # find connected components (white blobs in the image)
     nb_components, output, stats, centroids = cv2.connectedComponentsWithStats(img, connectivity=8)
     #just take size information
@@ -55,9 +54,25 @@ def conComWithMorpOps(img):
     combined_img = np.uint8(combined_img)
     return combined_img
 
+def linearInterpolation(img, combined_img):
+
+    img[combined_img==1] = np.nan
+    def my_func(col):
+        indices = np.arange(len(col))
+        not_nan = np.logical_not(np.isnan(col))
+        return np.interp(indices, indices[not_nan], col[not_nan])
+
+    return np.apply_along_axis(my_func, 1, img)
+
 #Initiate
 cap = cv2.VideoCapture('test.avi')
 median_frames = 10
+
+# create 4 subplots
+ax1 = plt.subplot(2,2,1)
+ax2 = plt.subplot(2,2,2)
+ax3 = plt.subplot(2,2,3)
+ax4 = plt.subplot(2,2,4)
 
 for i in xrange(400):
     ret,frame = cap.read()
@@ -72,23 +87,28 @@ for i in xrange(median_frames):
 
 # get temporal median img, img is (60, 80) float array
 img = np.median(images, axis=2)
+im1 = ax1.imshow(img)
 
 # binarization
-img = binarization(img)
+imgb = binarization(img)
 
 # convert binary image to bw image and cast int to uint8
-img = np.uint8(img*255)
+imgb = np.uint8(imgb*255)
+# filp black and white becasue cv2.connectedComponents only works for white components
+imgb = cv2.bitwise_not(imgb)
+im2 = ax2.imshow(imgb)
 
 # Connected Components Labeling
-combined_img = conComWithMorpOps(img)
+combined_img = conComWithMorpOps(imgb)
 
-# create two subplots
-# ax1 = plt.subplot(1,2,1)
-# ax2 = plt.subplot(1,2,2)
+# linear interpolation
 
-# im1 = ax1.imshow(output)
-# im2 = ax2.imshow(combined_img)
+background = linearInterpolation(img, combined_img)
 
-plt.imshow(combined_img)
+im3 = ax3.imshow(combined_img)
+im4 = ax4.imshow(background)
+
+#plt.imshow(combined_img)
 
 plt.show()
+
