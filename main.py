@@ -62,14 +62,14 @@ combined_img = np.zeros((output.shape))
 for i in range(1, nb_components):
     component = np.zeros((output.shape))
     component[output == i] = 1
-    # orphological operations including dilation and erosion
+    # morphological operations including dilation and erosion
     # Erosion, remove noise
     component = cv2.erode(component,kernel,iterations = 1)
     # dilation, recover size
     component = cv2.dilate(component,kernel,iterations = 1)
     # size filtering
-    # if sizes[i] >= min_size or sizes[i]<= max_size:
-    #     component[output == 1] = 0
+    if sizes[i] >= min_size or sizes[i]<= max_size:
+        component[output == 1] = 0
     # add to combined_img
     combined_img += component
 
