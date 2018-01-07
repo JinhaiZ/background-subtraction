@@ -133,13 +133,17 @@ if __name__ == '__main__':
     
 
     # create 4 subplots
+    fig = plt.figure()
     ax1 = plt.subplot(2,2,1)
     ax2 = plt.subplot(2,2,2)
     ax3 = plt.subplot(2,2,3)
     ax4 = plt.subplot(2,2,4)
-    
+    # ax1.title.set_text('(a)')
+    # ax2.title.set_text('(b)')
+    # ax3.title.set_text('(c)')
+    # ax4.title.set_text('(d)')
     frame = np.zeros(shape=(60,80))
-    for i in xrange(400):
+    for i in xrange(90):
         ret,frame = cap.read()
 
     im1 = ax1.imshow(frame)
@@ -148,12 +152,13 @@ if __name__ == '__main__':
     im4 = ax4.imshow(frame)
 
     bgg = BackgroundGenerator()
-
+    
     plt.ion()
-    while(True):
+    for i in xrange(500):
         # read a frame, frame is (60, 80, 3) unit8 array
         ret,frame = cap.read()
         median, binary, ccl, bg = bgg.apply(frame)
+        fig.savefig('./fig/fig-{!s}.png'.format(i))
         im1.set_data(median)
         im2.set_data(binary)
         im3.set_data(ccl)
