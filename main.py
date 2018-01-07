@@ -24,13 +24,14 @@ def binarization(image):
 def conComWithMorpOps(img):
     # Connected Components Labeling with morphological operations
 
-    
+    # remaining connected components
+    remainings = []
     # find connected components (white blobs in the image)
     nb_components, output, stats, centroids = cv2.connectedComponentsWithStats(img, connectivity=8)
     #just take size information
     sizes = stats[0:, -1]
     # minimum and maximum size of particles we want to keep (number of pixels)
-    min_size = output.shape[0]*output.shape[1] * 0.0008
+    min_size = output.shape[0]*output.shape[1] * 0.005
     max_size = output.shape[0]*output.shape[1] * 0.25
     # the kernel slides through the image
     kernel = np.ones((2,2),np.uint8)
@@ -45,24 +46,32 @@ def conComWithMorpOps(img):
         # morphological operations: dilation, recover size
         component = cv2.dilate(component,kernel,iterations = 1)
         # size filtering
-        if sizes[i] >= min_size or sizes[i]<= max_size:
-            component[output == 1] = 0
+        if sizes[i] <= min_size or sizes[i] >= max_size:
+            component[output == i] = 0
+        else:
+            remainings.append(i)
         # add to combined_img
         combined_img += component
     # reconvert to binary image
     combined_img[combined_img > 1] = 1
     combined_img = np.uint8(combined_img)
-    return combined_img
+    return stats[remainings], combined_img
+
+def generateSolidBoudingBox(stats, combined_img):
+    for stat in stats:
+        combined_img[stat[1]:stat[1]+stat[3], stat[0]:stat[0]+stat[2]] = 1
+    return
 
 def linearInterpolation(img, combined_img):
 
     img[combined_img==1] = np.nan
-    def my_func(col):
+    def interp(col):
         indices = np.arange(len(col))
         not_nan = np.logical_not(np.isnan(col))
         return np.interp(indices, indices[not_nan], col[not_nan])
 
-    return np.apply_along_axis(my_func, 1, img)
+    return np.apply_along_axis(interp, 1, img)
+
 
 #Initiate
 cap = cv2.VideoCapture('test.avi')
@@ -99,13 +108,15 @@ imgb = cv2.bitwise_not(imgb)
 im2 = ax2.imshow(imgb)
 
 # Connected Components Labeling
-combined_img = conComWithMorpOps(imgb)
+stats, combined_img = conComWithMorpOps(imgb)
+im3 = ax3.imshow(combined_img)
+
+# Generate Bounding box
+generateSolidBoudingBox(stats, combined_img)
 
 # linear interpolation
-
 background = linearInterpolation(img, combined_img)
 
-im3 = ax3.imshow(combined_img)
 im4 = ax4.imshow(background)
 
 #plt.imshow(combined_img)
