@@ -6,7 +6,7 @@ import copy
 # define functions
 class BackgroundGenerator(object):
 
-    def __init__(self):
+    def __init__(self, debug=False):
         self.index_P = 1.5
         self.index_Q = 120.4
         self.median_frames = 10
@@ -24,6 +24,7 @@ class BackgroundGenerator(object):
         self.image_c = np.zeros(shape=(60,80))
         # image_d, the final background image
         self.image_d = np.zeros(shape=(60,80))
+        self.debug = debug
 
     def __f(self, pixel, avg, std, index_P, index_Q):
         # the Equation described in the paper
@@ -89,8 +90,14 @@ class BackgroundGenerator(object):
             indices = np.arange(len(col))
             not_nan = np.logical_not(np.isnan(col))
             return np.interp(indices, indices[not_nan], col[not_nan])
-
         return np.apply_along_axis(interp, 1, img)
+
+    def returnValues(self):
+        if self.debug:
+            return self.image_a, self.image_b, self.image_c, self.image_d
+        else:
+            return self.image_d
+
     def apply(self, frame):
         # resize frame, frame is (60, 80) float array
         frame = np.median(frame,axis=2)
@@ -123,8 +130,10 @@ class BackgroundGenerator(object):
 
             # linear interpolation
             self.image_d = self.linearInterpolation(img, combined_img)
-            return self.image_a, self.image_b, self.image_c, self.image_d
-        return self.image_a, self.image_b, self.image_c, self.image_d
+            return self.returnValues()
+        return self.returnValues()
+        
+
 
 
 if __name__ == '__main__':
@@ -138,10 +147,7 @@ if __name__ == '__main__':
     ax2 = plt.subplot(2,2,2)
     ax3 = plt.subplot(2,2,3)
     ax4 = plt.subplot(2,2,4)
-    # ax1.title.set_text('(a)')
-    # ax2.title.set_text('(b)')
-    # ax3.title.set_text('(c)')
-    # ax4.title.set_text('(d)')
+
     frame = np.zeros(shape=(60,80))
     for i in xrange(90):
         ret,frame = cap.read()
@@ -151,14 +157,14 @@ if __name__ == '__main__':
     im3 = ax3.imshow(frame)
     im4 = ax4.imshow(frame)
 
-    bgg = BackgroundGenerator()
+    bgg = BackgroundGenerator(debug=True)
     
     plt.ion()
     for i in xrange(500):
         # read a frame, frame is (60, 80, 3) unit8 array
         ret,frame = cap.read()
         median, binary, ccl, bg = bgg.apply(frame)
-        fig.savefig('./fig/fig-{!s}.png'.format(i))
+
         im1.set_data(median)
         im2.set_data(binary)
         im3.set_data(ccl)
