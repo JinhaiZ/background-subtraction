@@ -163,15 +163,19 @@ if __name__ == '__main__':
     bgg = BackgroundGenerator(debug=True)
     
     plt.ion()
-    for i in xrange(500):
+    for i in xrange(10):
         # read a frame, frame is (60, 80, 3) unit8 array
         ret,frame = cap.read()
         median, binary, ccl, bg = bgg.apply(frame)
-
+        this_frame = np.median(frame,axis=2)
+        diff_frame = np.abs(this_frame - bg)
+        image_diff = this_frame - bg
+        image_diff[diff_frame <= 80] = 0
         im1.set_data(median)
         im2.set_data(binary)
         im3.set_data(ccl)
-        im4.set_data(bg)
+        im4.set_data(image_diff)
+        print np.sum(image_diff)
         plt.pause(0.0001)
 
     plt.ioff() # due to infinite loop, this gets never called.
