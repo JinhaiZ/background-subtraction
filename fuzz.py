@@ -40,18 +40,18 @@ class Fuzzy():
         rule5 = ctrl.Rule(f1['High'] & f2['Low'], p['High'])
         rule6 = ctrl.Rule(f1['High'] & f2['High'], p['Very Low'])
 
-        self.threshold_ctrl = ctrl.ControlSystem([rule1, rule2, rule3, rule4, rule5, rule6])
+        threshold_ctrl = ctrl.ControlSystem([rule1, rule2, rule3, rule4, rule5, rule6])
+        self.threshold = ctrl.ControlSystemSimulation(threshold_ctrl)
 
     def get_threshold(self, f1, f2):
         # compute optimal threshold given f1 and f2 value
         #print "f1=", f1, ", f2=" ,f2
-        threshold = ctrl.ControlSystemSimulation(self.threshold_ctrl)
-        threshold.input['Average of the generated background(F1)'] = f1
-        threshold.input['Sum of difference values between backgroud and input image(F2)'] = f2
+        
+        self.threshold.input['Average of the generated background(F1)'] = f1
+        self.threshold.input['Sum of difference values between backgroud and input image(F2)'] = f2
 
         # Crunch the numbers
-        threshold.compute()
-        ret = threshold.output['Output optimal threshold(p)']
-        #print "Threshold=", ret
-        return ret
+        self.threshold.compute()
         #p.view(sim=threshold)
+        return self.threshold.output['Output optimal threshold(p)']
+        
