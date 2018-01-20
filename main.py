@@ -6,6 +6,7 @@ import copy
 import math
 import matplotlib.pyplot as plt
 import numpy as np
+from BackgroundGenerator import BackgroundGenerator
 from HumanDetector import HumanDetector
 
 if __name__ == '__main__':
@@ -28,16 +29,18 @@ if __name__ == '__main__':
     im4 = ax4.imshow(frame)
 
     bgg = BackgroundGenerator(debug=True)
+    hd = HumanDetector(debug=True)
     
     plt.ion()
     for i in xrange(1000):
         # read a frame, frame is (60, 80, 3) unit8 array
         ret,frame = cap.read()
         median, binary, ccl, bg = bgg.apply(frame)
-        im1.set_data(median)
-        im2.set_data(binary)
-        im3.set_data(ccl)
-        im4.set_data(bg)
+        diff, combined_diff = hd.apply(frame, bg)
+        im1.set_data(bg)
+        im2.set_data(diff)
+        im3.set_data(combined_diff)
+        im4.set_data(combined_diff)
         plt.pause(0.0001)
     plt.ioff() # due to infinite loop, this gets never called.
     plt.show()
