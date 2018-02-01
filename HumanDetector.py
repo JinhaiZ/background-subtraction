@@ -83,9 +83,17 @@ class HumanDetector():
         combined_img = np.uint8(combined_img)
         return stats[remainings], combined_img
 
-    def returnValues(self):
+    def generateSolidBoudingBox(self, stats, input_img):
+        for stat in stats:
+            input_img[stat[1]:stat[1]+stat[3], stat[0]] = 255
+            input_img[stat[1]:stat[1]+stat[3], stat[0]+stat[2] - 1] = 255
+            input_img[stat[1], stat[0]:stat[0]+stat[2]] = 255
+            input_img[stat[1]+stat[3] - 1, stat[0]:stat[0]+stat[2]] = 255
+        return
+
+    def returnValues(self, frame):
         if self.debug:
-            return self.image_diff, self.combined_diff_img
+            return self.image_diff, self.combined_diff_img, frame
         else:
             return self.combined_diff_img
 
@@ -104,5 +112,6 @@ class HumanDetector():
         else:
             img_diff = self.image_diff
         stats, combined_diff_img = self.humanRegionConfirmation(img_diff)
+        self.generateSolidBoudingBox(stats, frame)
         self.combined_diff_img = np.uint8(combined_diff_img*255)
-        return self.returnValues()
+        return self.returnValues(frame)

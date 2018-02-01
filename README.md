@@ -12,3 +12,20 @@ The demo below shows the first part of the algorithme, generating a background i
 - The bottom right image is the final generated background image
 
 ![demo](./demo.gif)
+
+## Human Detection
+
+The demo below shows the second part of the algorithme,human detection based on the generated background image.
+
+- The top left image shows final generated background image
+- The top right image shows the binary difference image between input image and generated background image, the threshold is determinded dynamically with a fuzzy system
+- The bottom left image shows the binary difference image of detected human areas by labeling, size filtering and morphological operations
+- The bottom right image shows the detected boxs containing of human areas on the orignal input image
+
+![demo](./demo2.gif)
+
+
+:warning: The following features have not yet been implemented
+
+- Vertical and Horizontal Separation of Candidate Region
+- Confirmation of Human Area Based on Camera Viewing Direction
