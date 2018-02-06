@@ -1,5 +1,5 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+    #!/usr/bin/env python
+    # -*- coding: utf-8 -*-
 
 import cv2
 import copy
@@ -20,7 +20,7 @@ if __name__ == '__main__':
     ax4 = plt.subplot(2,2,4)
 
     frame = np.zeros(shape=(60,80))
-    for i in xrange(90):
+    for i in xrange(300):
         ret,frame = cap.read()
 
     im1 = ax1.imshow(frame)
@@ -32,7 +32,7 @@ if __name__ == '__main__':
     hd = HumanDetector(debug=True)
     
     plt.ion()
-    for i in xrange(500):
+    for i in xrange(2000):
         # read a frame, frame is (60, 80, 3) unit8 array
         ret,frame = cap.read()
         median, binary, ccl, bg = bgg.apply(frame)

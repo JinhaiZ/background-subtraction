@@ -36,7 +36,9 @@ class HumanDetector():
         # normalize f2
         #print "F2=", 1-math.exp(-16.09438/122400*F2)
         #print "F1=", 1.039048-1.039048*math.exp(-3.2828/255*F1)
-        self.f2 = 1-math.exp(-16.09438/122400*F2)
+        
+        self.f2 = 1-math.exp(-16.09438/122400*abs(F2))
+        #print("F2=", F2, " f2=", self.f2)
 
     def getBinaryDiffImage(self, input_frame, generated_bg, p, alpha=25, beta=15):
         # alpha and beta parameters described in Equation(11)
@@ -45,7 +47,7 @@ class HumanDetector():
         diff[diff !=0 ] = 1
         return diff
 
-    def humanRegionConfirmation(self, image_diff, min_size_ratio=0.01, max_size_ratio=0.3):
+    def humanRegionConfirmation(self, image_diff, min_size_ratio=0.05, max_size_ratio=0.4):
         
         # the kernel slides through the image
         kernel = np.ones((3,3),np.uint8)
@@ -103,7 +105,7 @@ class HumanDetector():
         # compute F1 and F2 to get optimal threshold
         self.setFValues(frame, generated_bg)
         # get optimal threshold
-        self.p = self.fuzzy.get_threshold(self.f1, self.f2) 
+        self.p = self.fuzzy.get_threshold(self.f1, self.f2)
         # generate difference image based on the optimal threshold
         self.image_diff = self.getBinaryDiffImage(frame, generated_bg, self.p) # same ops for imgb
         # Morphorlogical Operation with Connected Components Labeling

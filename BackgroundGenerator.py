@@ -61,7 +61,7 @@ class BackgroundGenerator(object):
         min_size = output.shape[0]*output.shape[1] * min_size_ratio
         max_size = output.shape[0]*output.shape[1] * max_size_ratio
         # the kernel slides through the image
-        kernel = np.ones((3,3),np.uint8)
+        kernel = np.ones((5,5),np.uint8)
         # prepare for the final image 
         combined_img = np.zeros((output.shape))
         #for every component in the image
@@ -69,9 +69,9 @@ class BackgroundGenerator(object):
             component = np.zeros((output.shape))
             component[output == i] = 1
             # morphological operations: Erosion, remove noise
-            component = cv2.erode(component,kernel,iterations = 1)
+            component = cv2.erode(component,np.ones((3,3),np.uint8),iterations = 2)
             # morphological operations: dilation, recover size
-            component = cv2.dilate(component,kernel,iterations = 1)
+            component = cv2.dilate(component,kernel,iterations = 5)
             # size filtering
             if sizes[i] <= min_size or sizes[i] >= max_size:
                 component[output == i] = 0
