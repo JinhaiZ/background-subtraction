@@ -106,7 +106,8 @@ class BackgroundGenerator(object):
 
     def apply(self, frame):
         # resize frame, frame is (60, 80) float array
-        frame = np.median(frame,axis=2)
+        if len(frame.shape) == 3:
+            frame = np.median(frame,axis=2)
         img = frame
         # add frame to images, images is (60, 80, median_frames) float array
         self.images[:,:,self.median_frames_count%self.median_frames] = frame

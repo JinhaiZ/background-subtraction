@@ -101,7 +101,8 @@ class HumanDetector():
 
     def apply(self, frame, generated_bg):
         # resize frame, frame is (60, 80) float array
-        frame = np.median(frame,axis=2)
+        if len(frame.shape) == 3:
+            frame = np.median(frame,axis=2)
         # compute F1 and F2 to get optimal threshold
         self.setFValues(frame, generated_bg)
         # get optimal threshold
