@@ -93,9 +93,14 @@ class BackgroundGenerator(object):
 
         img[combined_img==1] = np.nan
         def interp(col):
+            # interpolation function that applies to column
             indices = np.arange(len(col))
             not_nan = np.logical_not(np.isnan(col))
+            # fix bug when array of sample points is empty
+            if np.count_nonzero(not_nan) == 0:
+                return
             return np.interp(indices, indices[not_nan], col[not_nan])
+
         return np.apply_along_axis(interp, 1, img)
 
     def returnValues(self):
