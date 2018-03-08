@@ -36,7 +36,8 @@ if __name__ == '__main__':
         # read a frame, frame is (60, 80, 3) unit8 array
         ret,frame = cap.read()
         median, binary, ccl, bg = bgg.apply(frame)
-        diff, combined_diff, frame = hd.apply(frame, bg)
+        diff, combined_diff, frame, nb_detection = hd.apply(frame, bg)
+        print("{} person(s) detected\n".format(nb_detection))
         # fig.savefig('./fig/fig-{!s}.png'.format(i)) and ffmpeg -r 30 -i fig-%d.png output.gif
         im1.set_data(bg)
         im2.set_data(diff)

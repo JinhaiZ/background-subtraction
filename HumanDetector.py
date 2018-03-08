@@ -93,11 +93,11 @@ class HumanDetector():
             input_img[stat[1]+stat[3] - 1, stat[0]:stat[0]+stat[2]] = 255
         return
 
-    def returnValues(self, frame):
+    def returnValues(self, frame, nb_detection):
         if self.debug:
-            return self.image_diff, self.combined_diff_img, frame
+            return self.image_diff, self.combined_diff_img, frame, nb_detection
         else:
-            return self.combined_diff_img
+            return self.combined_diff_img, nb_detection
 
     def apply(self, frame, generated_bg):
         # resize frame, frame is (60, 80) float array
@@ -117,4 +117,4 @@ class HumanDetector():
         stats, combined_diff_img = self.humanRegionConfirmation(img_diff)
         self.generateBoudingBox(stats, frame)
         self.combined_diff_img = np.uint8(combined_diff_img*255)
-        return self.returnValues(frame)
+        return self.returnValues(frame, len(stats))
